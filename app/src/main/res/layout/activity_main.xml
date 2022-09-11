@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+
+
+    <Button
+        android:id="@+id/button_start"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start"
+        android:onClick="startRepeating"
+        />
+    <Button
+        android:id="@+id/button_stop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Stop"
+        android:onClick="stopRepeating"
+        />
+    <Button
+        android:id="@+id/button_graph"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Odswiez wykres"
+        />
+    <Button
+        android:id="@+id/button_export"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Eksportuj do csv"
+        />
+            <TextView
+                android:id="@+id/TextTemp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                />
+            <TextView
+                android:id="@+id/TextData"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                />
+
+    <com.jjoe64.graphview.GraphView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/graph" />
+
+</LinearLayout>
