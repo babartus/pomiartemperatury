@@ -21,7 +21,7 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
     private Context context;
     private static final String DATABASE_NAME = "TemperaturaOtoczenia.db";
     private static final int DATABASE_VERSION = 1;
-
+//deklaracja nazwy tabeli i jej kolumn w bazie danych
     private static final String TABLE_NAME = "pomiar";
     private static final String COLUMN_ID = "_id";
     private static final String COLUMN_DATA = "Data_pomiaru";
@@ -31,7 +31,7 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.context = context;
     }
-
+// kwerenda tworzaca tabele
     @Override
     public void onCreate(SQLiteDatabase db) {
         String query = "CREATE TABLE " + TABLE_NAME +
@@ -46,7 +46,7 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
         onCreate(db);
     }
-
+// funkcja dodajaca dane do tabeli tj. id, date pomiaru, temperature
     void addTemp(String data, Integer temp) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -60,7 +60,7 @@ class MyDatabaseHelper extends SQLiteOpenHelper {
             Toast.makeText(context, "dodano temp", Toast.LENGTH_SHORT).show();
         }
     }
-
+// funckja zczytujaca wszystkie dane z bazy danych
     Cursor readAllData(){
         String query = "SELECT * FROM " + TABLE_NAME;
         SQLiteDatabase db = this.getReadableDatabase();

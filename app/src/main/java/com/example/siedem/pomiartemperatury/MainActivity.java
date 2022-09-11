@@ -3,6 +3,10 @@ package com.example.siedem.pomiartemperatury;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,8 +14,14 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -42,13 +52,19 @@ public class MainActivity extends AppCompatActivity {
     IntentFilter intentFilter;
     Button exportButton,graphButton;
     int temperatura;
+    NotificationManagerCompat notificationManagerCompat;
+    Notification notification;
+
     //zczytywanie danych
     MyDatabaseHelper myDB;
     ArrayList<String> __id, _temp,_data;
+
+    //zgoda na zapis csv
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
+
     };
     public static void verifyStoragePermissions(Activity activity) {
         // Check if we have write permission
@@ -64,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //dodawanie pomiaru do bazy danych funkcja addTemp co 15 sekund
     private Handler mHandler = new Handler();
 
     private Runnable mToastRunnable = new Runnable() {
@@ -75,7 +92,9 @@ public class MainActivity extends AppCompatActivity {
             String currentTime = df.format(Calendar.getInstance().getTime());
             myDB.addTemp(currentTime,temperatura-6);
 
-
+            if(temperatura-6 >= 25){
+                notificationManagerCompat.notify(1,notification);
+            }
 
             mHandler.postDelayed(this, 15000);
         }
@@ -107,8 +126,22 @@ public class MainActivity extends AppCompatActivity {
      //   final String currentTime = df.format(Calendar.getInstance().getTime());
        // textdata.setText("Time: " + currentTime);
 
+        //powiadomienie
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            NotificationChannel channel = new NotificationChannel("myCh", "My Channel", NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(channel);
+        }
 
-        //tablica na dane z SQL
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this,"myCh")
+                .setSmallIcon(android.R.drawable.stat_notify_error)
+                .setContentTitle("Uwaga")
+                .setContentText("Temperatura przekroczona");
+
+        notification = builder.build();
+        notificationManagerCompat = NotificationManagerCompat.from(this);
+
+        //tablice na dane z SQL
         myDB = new MyDatabaseHelper(MainActivity.this);
         __id = new ArrayList<>();
         _data = new ArrayList<>();
@@ -116,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
+        //przycisk exportuj do csv
         exportButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -147,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        //przycisk odswiezajacy wykres
         graphButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -178,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
+    //funkcja zczytujaca dane z bazy danych do tablic
     void storeDataInArrays()
     {
         Cursor cursor = myDB.readAllData();
@@ -195,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
+    //funkcja zczytujaca temperature otoczenia
     private void intentFilterAndBroadcast() {
         intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
@@ -207,10 +240,17 @@ public class MainActivity extends AppCompatActivity {
                     float tempTemp = (float) intent.getIntExtra("temperature", -1)/10;
                     textview.setText("Obecna temperatura"+ (tempTemp-6) +" °C");
                     temperatura = Math.round(tempTemp);
+
+
+
                 }
             }
         };
     }
+
+
+    //funkcja do powiadomienia
+
 
 
     @Override
